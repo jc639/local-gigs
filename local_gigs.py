@@ -10,9 +10,13 @@ import xml.etree.ElementTree as ET
 import os
 import datetime as dt
 import spotipy
+import spotipy.util as util
+import sys
+import time
 
-# set wd to songkick folder
-os.chdir("C:\\Users\\dpj\\Documents\\python\\songkick")
+# prompt for login
+scope = 'playlist-modify-public'
+token = util.prompt_for_user_token(username, scope, ,,)
 
 # api key and metro id
 api_key = ""
@@ -20,8 +24,6 @@ metro_id = "24571"
 filename = "songkick.xml"
 
 def get_songkick(api_key, metro_id, filename):
-	"use songkick api to get xml calender for metro area"
-	# http://api.songkick.com/api/3.0/metro_areas/{metro_area_id}/calendar.xml?apikey={your_api_key}
 	urlretrieve("http://api.songkick.com/api/3.0/metro_areas/" + metro_id + "/calendar.xml?apikey=" + api_key, \
 	filename)
 	
@@ -70,6 +72,8 @@ def artist_uri(artists):
 def top_tracks(artist, uri, n_tracks):
 	
 	track_dict = {}
+	
+	spotify = spotipy.Spotify()
 
 	for key, value in uri.items():
 		results = spotify.artist_top_tracks(value)
@@ -95,7 +99,7 @@ def update_playlist(token, top_tracks, small_playlist, large_playlist):
 	
 	for key, values in top_tracks.items():
 		if value == 0:
-			smaller.playlist(key)
+			smaller_playlist.append(key)
 	
 	user_playlists = spotify.current_user_playlists()
 	
@@ -112,4 +116,44 @@ def update_playlist(token, top_tracks, small_playlist, large_playlist):
 	if small_playlist_id == None:
 		small_playlist_id = spotify.user_playlist_create(user=user, \
 		name=small_playlist)['uri']
-	if large_playlist_id == None
+	if large_playlist_id == None:
+		large_playlist_id == spotify.user_playlist_create(user=user, \
+		name=large_playlist)['uri']
+	
+	spotify.user_playlist_replace_tracks(user=user, playlist_id=small_playlist_id,\
+	tracks=smaller_playlist)
+	
+	spotify.user_playlist_replace_tracks(user=user, playlist_id=large_playlist_id, \
+	tracks=large_playlist)
+
+# main code execution
+
+while True:
+	try:
+		# time now and till midnight
+		time_now = dt.datetime.now()
+		midnight = time_now.replace(hour=23, minute=59, second=59)
+		time_to_mid = midnight - time_now
+		
+		# sleep till time to update
+		time.sleep(time_to_mid.seconds+10)
+		
+		# get xml songkick
+		get_songkick(api_key=api_key, metro_id=metro_id, filename=filename)
+		
+		# get artist list for time period
+		artists = band_parse(filename=filename, day_delta=14, coming_days=2)
+		
+		# to get the uri for each artist
+		uri = artist_uri(artists=artists)
+		
+		# top tracks for each artist
+		tracks = top_tracks(artist=artists, uri=uri, n_tracks=2)
+		
+		# update the playlist
+		update_playlist(token=token, top_tracks=tracks, small_playlist="Cambridge Gigs:Next two days", \
+		large_playlist="Cambridge Gigs:Next two weeks")
+		
+	
+	except KeyboardInterrupt:
+		sys.exit()
