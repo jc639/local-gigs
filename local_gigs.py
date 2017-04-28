@@ -25,15 +25,14 @@ def get_songkick(api_key, metro_id, filename):
 	urlretrieve("http://api.songkick.com/api/3.0/metro_areas/" + metro_id + "/calendar.xml?apikey=" + api_key, \
 	filename)
 	
-def band_parse(filename, day_delta):
+def band_parse(filename, day_delta, coming_days):
 	tree = ET.parse(filename)
 	root = tree.getroot()
 	
 	date_today = dt.datetime.now()
 	date_future = date_today + dt.timedelta(days = day_delta)
 	
-	nx_two_days = []
-	nx_two_weeks = []
+	artist_dict = {}
 	
 	for event in root.iter('event'):
 		for start in event.iter('start'):
@@ -42,20 +41,48 @@ def band_parse(filename, day_delta):
 			artist = artist.get('displayName')
 			
 			if start < date_future:
-				nx_two_weeks.append(artist)
-				
-				if start < date_today + dt.timedelta(days=2):
-					nx_two_days.append(artist)
+								
+				if start < date_today + dt.timedelta(days=coming_days):
+					artist_dict.update({artist:0})
+				else:
+					artist_dict.update({artist:1})					
 	
 	os.remove(filename)
-	return((nx_two_days, nx_two_weeks))
+	return(artist_dict)
 
 def artist_uri(artists):
+	artist = list(artists)
 	artist_uri = {}
 	
 	spotify = spotipy.Spotify()
 	
 	for artist in artists:
-		results = 
+		results = spotify.search(q='artist:'+artist, type='artist', limit=1)
 		
+		if len(results['artists']['items']) != 0:
+			results = results['artists']['items'][0]
+			if results['name'] == artist:
+				artist_uri.update({artist:results['uri']})
 		
+	return(artist_uri)	
+
+
+def top_tracks(artist, uri, n_tracks):
+	
+	track_dict = {}
+
+	for key, value in uri.items():
+		results = spotify.artist_top_tracks(value)
+		
+		results = results['tracks']
+		
+		if(len(results) < n_tracks):
+			for tracks in results:
+				track_dict.update({tracks['uri']:artist[key]})
+		else:
+			for tracks in results[:n_tracks]:
+				track_dict.update({tracks['uri']:artist[key]})
+		
+	return(track_dict)
+
+	
