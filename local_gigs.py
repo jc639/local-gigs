@@ -85,4 +85,31 @@ def top_tracks(artist, uri, n_tracks):
 		
 	return(track_dict)
 
+def update_playlist(token, top_tracks, small_playlist, large_playlist):
 	
+	spotify = spotipy.Spotify(auth=token)
+	user = spotify.current_user()['id']
+	
+	smaller_playlist = []
+	larger_playlist = list(top_tracks)
+	
+	for key, values in top_tracks.items():
+		if value == 0:
+			smaller.playlist(key)
+	
+	user_playlists = spotify.current_user_playlists()
+	
+	user_playlists = user_playlists['items']
+	
+	small_playlist_id = None
+	large_playlist_id = None
+	for playlist in user_playlists:
+		if playlist['name'] == small_playlist:
+			small_playlist_id = playlist['uri']
+		elif playlist['name'] == large_playlist:
+			large_playlist_id = playlist['uri']
+	
+	if small_playlist_id == None:
+		small_playlist_id = spotify.user_playlist_create(user=user, \
+		name=small_playlist)['uri']
+	if large_playlist_id == None
