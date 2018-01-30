@@ -22,7 +22,7 @@ token = util.prompt_for_user_token(user, scope, client_id, client_secret,
 redirect_uri)
 
 # Authorised spotify API, with scope to modify playlist
-sp = spotify.Spotify(token)
+sp = spotipy.Spotify(token)
 
 # definition of gigs object and associated methods
 class localGigs:
@@ -46,17 +46,17 @@ class localGigs:
 	
 	
 	def get_songkick(self, day_splits=[]):
-	'''
-		Opens connection to Songkick XML
-		and returns artists within given periods
-		
-		Params:
-		1. day_splits = should be passed as a list with length
-		of 2. First number is how many days from todays date that
-		you would like the shorter, immediate playlist to cover. Second
-		one is intermediate playlist. A third playlist is generated
-		that covers absolutely everything listed
-	'''
+		'''
+			Opens connection to Songkick XML
+			and returns artists within given periods
+			
+			Params:
+			1. day_splits = should be passed as a list with length
+			of 2. First number is how many days from todays date that
+			you would like the shorter, immediate playlist to cover. Second
+			one is intermediate playlist. A third playlist is generated
+			that covers absolutely everything listed
+		'''
 		# open connection to songkick API to get first page of XML
 	    address = 'http://api.songkick.com/api/3.0/metro_areas/' + self.metro + '/calendar.xml?apikey=' + self.apikey 
 		r = requests(address)
@@ -98,5 +98,22 @@ class localGigs:
 					
 					else:
 						self.artists.update({artist:2})
-						
+	
+	def get_artist_uri(self):
+		'''
+		Gets the artist URI through the Spotify API
+		'''
+		artists = list(self.artists)
 		
+		for artist in artists:
+			results = sp.search(q='artist:'+artist, type='artist', limit=1)
+			
+			if len(results['artists']['items']) != 0:
+				results = results['artists']['items'][0]
+				if results['name'].lower() == artist.lower():
+					self.artist_uris.update({artist:results['uri']})
+				elif results['name'].lower().replace(' & ', ' and ') == artist.lower():
+					self.artist_uris.update({artist:results['uri']})
+				elif results['name'].lower().replace(' and ', ' & ') == artist.lower():
+					self.artist_uris.update({artist:results['uri']})
+	
