@@ -27,7 +27,7 @@ sp = spotipy.Spotify(token)
 # definition of gigs object and associated methods
 class localGigs:
 	'Updates your spotify with local gigs derived from songkick'
-	
+
 	def __init__(self, apikey, metro):
 		'''
 			Creates localGigs object
@@ -43,8 +43,8 @@ class localGigs:
 		self.artists = {}
 		self.artist_uris = {}
 		self.tracks = {}
-	
-	
+
+
 	def get_songkick(self, day_splits=[]):
 		'''
 			Opens connection to Songkick XML
@@ -58,7 +58,7 @@ class localGigs:
 			that covers absolutely everything listed
 		'''
 		# open connection to songkick API to get first page of XML
-	    address = 'http://api.songkick.com/api/3.0/metro_areas/' + self.metro + '/calendar.xml?apikey=' + self.apikey 
+		address = 'http://api.songkick.com/api/3.0/metro_areas/' + self.metro + '/calendar.xml?apikey=' + self.apikey 
 		r = requests(address)
 		
 		# root the XML tree
@@ -76,6 +76,7 @@ class localGigs:
 		# iterate through events and record which point they occur
 		# covers first page, then iterates through the others
 		for i in range(1, n_pages + 1)
+			
 			if i == 1:
 				continue
 			else:
@@ -83,22 +84,23 @@ class localGigs:
 				r = requests.get(address, params = payload)
 				root = ET.fromstring(r.text)
 				r.close()
+				
 			for event in root.iter('event'):
 				for start in event.iter('start'):
 					start = dt.datetime.strptime(start.get('date'), '%Y-%m-%d')
 				for artist in event.iter('artist'):
 					artist = artist.get('displayName')
-					
-										
+				
+									
 					if start < date_today + short_cutdate:
 						self.artists.update({artist:0})
 
 					elif start > short_cutdate and start < long_cutdate:
 						self.artists.update({artist:1})
-					
+				
 					else:
 						self.artists.update({artist:2})
-	
+
 	def get_artist_uri(self):
 		'''
 		Gets the artist URI through the Spotify API
@@ -116,4 +118,3 @@ class localGigs:
 					self.artist_uris.update({artist:results['uri']})
 				elif results['name'].lower().replace(' and ', ' & ') == artist.lower():
 					self.artist_uris.update({artist:results['uri']})
-	
