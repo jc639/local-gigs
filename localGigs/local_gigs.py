@@ -110,7 +110,7 @@ class localGigs:
         '''
         artists = list(self.artists)
 		
-		# gets the artist URI on Spotify if they exist
+        # gets the artist URI on Spotify if they exist
         for artist in artists:
             results = sp.search(q='artist:'+artist, type='artist', limit=1)
 
@@ -123,115 +123,112 @@ class localGigs:
                 elif results['name'].lower().replace(' and ', ' & ') == artist.lower():
                     self.artist_uris.update({artist:results['uri']})
 	
-	def get_tracks(self, n_tracks = 2):
-	    '''
-		Gets the top tracks for the artists.
-		
-		Parameters:
-		1. n_tracks - Number of top tracks you want, default 
-		is two. If number of tracks available is shorter than n_tracks it
-		returns the total number of tracks for that artist.
-		'''
-		
-		# iterate through the artist uri
-		for key, value in self.artist_uris.items():
-		    results = sp.artist_top_tracks(value)
-			
-			# refine results down to tracks
-			results = results['tracks']
-			
-			# if length of results is shorter than n_tracks
-			# get all
-			# update the track dictionary with track uri and associated
-			# value of which playlist
-			if len(results) < n_tracks:
-			    for tracks in results:
-				    self.tracks.update({tracks['uri'] : self.artists[key]})
-			else:
-			    for tracks in results[: n_tracks]:
-				    self.tracks.update({tracks['uri'] : artist[key]})
+    def get_tracks(self, n_tracks = 2):
+        '''
+        Gets the top tracks for the artists.
+
+        Parameters:
+        1. n_tracks - Number of top tracks you want, default 
+        is two. If number of tracks available is shorter than n_tracks it
+        returns the total number of tracks for that artist.
+        '''
+
+        # iterate through the artist uri
+        for key, value in self.artist_uris.items():
+            results = sp.artist_top_tracks(value)
+
+            # refine results down to tracks
+            results = results['tracks']
+            
+            # if length of results is shorter than n_tracks
+            # get all
+            # update the track dictionary with track uri and associated
+            # value of which playlist
+            if len(results) < n_tracks:
+                for tracks in results:
+                    self.tracks.update({tracks['uri'] : self.artists[key]})
+            else:
+                for tracks in results[: n_tracks]:
+                    self.tracks.update({tracks['uri'] : artist[key]})
 
     def update_playlists(self, playlist_names = None):
         '''
         Update/Create the playlists
 
         Parameters:
-		1. playlist_names - List of names that you want the playlist
-		to be called. Length of 3, in order of small, medium, large.
-		'''
-		
-		# get your user id
-		user = sp.current_user()['id']
-		
-		# three playlist
-		# small - soon, large and everything
-		sm_playlist = []
-		lg_playlist = []
-		all_playlist = list(self.tracks)
-		
-		# iterate through key, vals and
-		# assign tracks to correct playlist
-		# on basis of value
-		for key, value in top_tracks.items():
-		    if value == 0:
-			    sm_playlist.append(key)
-			    lg_playlist.append(key)
-			elif value == 1:
-			    lg_playlist.append(key)
-		
-		# get the users playlist that already exist
-		user_playlists = sp.current_user_playlists()
-		user_playlists = user_playlists['items']
-		
-		# set ids as none
-		sm_id = None
-		lg_id = None
-		all_id = None
-		
-		# iterate through existing playlists
-		# if exist get their uri
-		for playlist in user_playlists:
-		    if playlist['name'] == playlist_names[0]:
-			    sm_id = playlist['uri']
-			elif playlist['name'] == playlist_names[1]:
-			    lg_id = playlist['uri']
-			elif playlist['name'] == playlist_names[2]:
-			    all_id = playlist['uri']
-		
-		# if ids are still none create the playlist
-		if sm_id == None:
-		    sm_id = sp.user_playlist_create(user = user, name = playlist_names[0])['uri']
-		if lg_id == None:
-		    lg_id = sp.user_playlist_create(user = user, name = playlist_names[1])['uri']
-		if all_id == None:
-		    all_id = sp.user_playlist_create(user = user, name = playlist_names[2])['uri']
-		
-		# list ids and playlist
-		ids = [sm_id, lg_id, all_id]
-		playlists = [sm_playlist, lg_playlist, all_playlist]
-		
-		# iterate through, spotipy can 
-		# only put <=100 songs into a playlist
-		# if longer split
-		for i in range(0, len(ids)):
-		    tracks = playlists[i]
-			
-			if len(tracks) <= 100:
-			    sp.user_playlist_replace_tracks(user = user, playlist_id = ids[i],\
-				tracks = tracks)
-			
-			# where its longer, split
-			else:
-			    t = [tracks[j : j+100] for j in range(0, len(tracks), 100)]
-				for k in range(0, len(t)):
-				    # on initial replace
-					if k == 0:
-					    sp.user_playlist_replace_tracks(user = user, playlist_id = ids[i],\
-						tracks = t[k])
-					# on next just add track
-					else:
-					    sp.user_playlist_add_tracks(user = user, playlist_id = ids[i], \
-						tracks = t[k])
-				
-			
-			
+        1. playlist_names - List of names that you want the playlist
+        to be called. Length of 3, in order of small, medium, large.
+        '''
+
+        # get your user id
+        user = sp.current_user()['id']
+        
+        # three playlist
+        # small - soon, large and everything
+        sm_playlist = []
+        lg_playlist = []
+        all_playlist = list(self.tracks)
+
+        # iterate through key, vals and
+        # assign tracks to correct playlist
+        # on basis of value
+        for key, value in top_tracks.items():
+            if value == 0:
+                sm_playlist.append(key)
+                lg_playlist.append(key)
+            elif value == 1:
+                lg_playlist.append(key)
+
+        # get the users playlist that already exist
+        user_playlists = sp.current_user_playlists()
+        user_playlists = user_playlists['items']
+
+        # set ids as none
+        sm_id = None
+        lg_id = None
+        all_id = None
+
+        # iterate through existing playlists
+        # if exist get their uri
+        for playlist in user_playlists:
+            if playlist['name'] == playlist_names[0]:
+                sm_id = playlist['uri']
+            elif playlist['name'] == playlist_names[1]:
+                lg_id = playlist['uri']
+            elif playlist['name'] == playlist_names[2]:
+                all_id = playlist['uri']
+
+        # if ids are still none create the playlist
+        if sm_id == None:
+            sm_id = sp.user_playlist_create(user = user, name = playlist_names[0])['uri']
+        if lg_id == None:
+            lg_id = sp.user_playlist_create(user = user, name = playlist_names[1])['uri']
+        if all_id == None:
+           all_id = sp.user_playlist_create(user = user, name = playlist_names[2])['uri']
+
+        # list ids and playlist
+        ids = [sm_id, lg_id, all_id]
+        playlists = [sm_playlist, lg_playlist, all_playlist]
+
+        # iterate through, spotipy can 
+        # only put <=100 songs into a playlist
+        # if longer split
+        for i in range(0, len(ids)):
+            tracks = playlists[i]
+
+            if len(tracks) <= 100:
+                sp.user_playlist_replace_tracks(user = user, playlist_id = ids[i],
+                tracks = tracks)
+
+            # where its longer, split
+            else:
+                t = [tracks[j : j+100] for j in range(0, len(tracks), 100)]
+                for k in range(0, len(t)):
+                    # on initial replace
+                    if k == 0:
+                        sp.user_playlist_replace_tracks(user = user, playlist_id = ids[i],
+                        tracks = t[k])
+                    # on next just add track
+                    else:
+                        sp.user_playlist_add_tracks(user = user, playlist_id = ids[i],
+                        tracks = t[k])
