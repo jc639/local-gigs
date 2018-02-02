@@ -24,7 +24,7 @@ redirect_uri)
 sp = spotipy.Spotify(token)
 
 # definition of gigs object and associated methods
-class localGigs:
+class LocalGigs:
     'Updates your spotify with local gigs derived from songkick'
 
     def __init__(self, apikey, metro):

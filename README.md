@@ -16,12 +16,12 @@ There are several things you need to do to get this to work and I
 can make no guarantee that they are all possible...
 
 1. Install [spotipy](https://github.com/plamere/spotipy) by following instructions in the link
-2. Register as developer on Spotify, and register you app which you need to use the client
+2. Register as developer on Spotify, and register your app which you need to use the client
 details to authorise. Details on how to do this are in the spotipy [documentation](http://spotipy.readthedocs.org/)
-3. These client details need to be plug into the localgigs.py file for OAuth2 authorisation, the details of which are in the spotipy docs.
+3. These client details need to be plugged into the localgigs.py file for OAuth2 authorisation, the details of which are in the spotipy docs.
 3. Finally you would need to get a Songkick API which you can read about [here.](https://www.songkick.com/developer) 
 There are some [terms](https://www.songkick.com/developer/api-terms-of-use) that need to be met to get one,
-and you need to give specifics details of what you are doing. The API key is need in new instance of localgigs object.
+and you need to give specifics details of what you are doing. The API key is needed in new instance of localgigs object.
 
 ## Finally
 I am running this on Raspberry Pi, thats always on, so I just scheduled it to run at 1:00am everyday
