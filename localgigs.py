@@ -1,11 +1,11 @@
+#!/usr/bin/python3
+
+# import modules
 import requests
 import xml.etree.ElementTree as ET
-import os
 import datetime as dt
 import spotipy
 import spotipy.util as util
-import sys
-import time
 from math import ceil
 
 # create Spotify API object

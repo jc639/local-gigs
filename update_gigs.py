@@ -1,4 +1,4 @@
-# import
+#!/usr/bin/python3
 import localgigs
 
 api = '' # The Songkick API key
