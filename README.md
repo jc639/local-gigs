@@ -40,4 +40,4 @@ And the output:
 
 [Cambridge gigs in next two months](https://open.spotify.com/user/slothy123/playlist/6VmM1CaAl8N1CASqtokcKS?si=5TUosc1RTPSvrKFd8833DQ)
 
-[Cambridge gig in next seven days](https://open.spotify.com/user/slothy123/playlist/3B8FpvIHyzHAxcPOmlGiMq?si=JcVCqTabRtSIaNkIQKgXIQ)
+[Cambridge gigs in next seven days](https://open.spotify.com/user/slothy123/playlist/3B8FpvIHyzHAxcPOmlGiMq?si=JcVCqTabRtSIaNkIQKgXIQ)
