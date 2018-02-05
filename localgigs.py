@@ -10,10 +10,10 @@ from math import ceil
 
 # create Spotify API object
 scope = 'playlist-modify-public'
-user = 'your-user-name' # replace with your Spotify username
-client_id='your-app-redirect-url' # replace with your client id from Spotify Dev
-client_secret='your-app-redirect-url' # replace with your client id from Spotify Dev
-redirect_uri='your-app-redirect-url' # replace with your client id from Spotify Dev
+user = '' # replace with your Spotify username
+client_id='' # replace with your client id from Spotify Dev / or can set in environment
+client_secret='' # replace with your client secret from Spotify Dev / Or can set in environment
+redirect_uri='http://localhost/' # redirected to this after login
 
 # first time you import this will being up authorisation window
 # after that token will be cached and refresh
@@ -58,7 +58,7 @@ class LocalGigs:
         '''
         # open connection to songkick API to get first page of XML
         address = 'http://api.songkick.com/api/3.0/metro_areas/' + self.metro + '/calendar.xml?apikey=' + self.apikey 
-        r = requests(address)
+        r = requests.get(address)
 
         # root the XML tree
         root = ET.fromstring(r.text)
@@ -74,11 +74,10 @@ class LocalGigs:
 
         # iterate through events and record which point they occur
         # covers first page, then iterates through the others
-        for i in range(1, n_pages + 1)
-
-            if i == 1:
-                continue
-            else:
+        for i in range(1, n_pages + 1):
+            
+            # get next pages of xml
+            if i > 1:
                 payload = {'page' : str(i)}
                 r = requests.get(address, params = payload)
                 root = ET.fromstring(r.text)
@@ -86,19 +85,18 @@ class LocalGigs:
 
             for event in root.iter('event'):
                 for start in event.iter('start'):
-	                start = dt.datetime.strptime(start.get('date'), '%Y-%m-%d')
+                    start = dt.datetime.strptime(start.get('date'), '%Y-%m-%d')
                 for artist in event.iter('artist'):
-	                artist = artist.get('displayName')
-
-					# dictionary with artist name as key, value
-					# represents where there gig falls
-					# 0 in the playlist for next few days
-					# 1 for the longer one
-					# 2 for anything outside 
-                    if start < date_today + short_cutdate:
+                    artist = artist.get('displayName')
+                    # dictionary with artist name as key, value
+                    # represents where there gig falls
+                    # 0 in the playlist for next few days
+                    # 1 for the longer one
+                    # 2 for anything outside 
+                    if start <= short_cutdate:
                         self.artists.update({artist:0})
 
-                    elif start > short_cutdate and start < long_cutdate:
+                    elif short_cutdate < start <= long_cutdate:
                         self.artists.update({artist:1})
 
                     else:
@@ -149,7 +147,7 @@ class LocalGigs:
                     self.tracks.update({tracks['uri'] : self.artists[key]})
             else:
                 for tracks in results[: n_tracks]:
-                    self.tracks.update({tracks['uri'] : artist[key]})
+                    self.tracks.update({tracks['uri'] : self.artists[key]})
 
     def update_playlists(self, playlist_names = None):
         '''
@@ -172,7 +170,7 @@ class LocalGigs:
         # iterate through key, vals and
         # assign tracks to correct playlist
         # on basis of value
-        for key, value in top_tracks.items():
+        for key, value in self.tracks.items():
             if value == 0:
                 sm_playlist.append(key)
                 lg_playlist.append(key)

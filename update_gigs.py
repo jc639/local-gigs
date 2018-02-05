@@ -3,7 +3,7 @@ import localgigs
 
 api = '' # The Songkick API key
 metro = '' # Metro ID for the area
-gigs = LocalGigs(apikey = api, metro = metro)
+gigs = localgigs.LocalGigs(apikey = api, metro = metro)
 
 if __name__ == "__main__":
     # get the songkick xml and split artist
@@ -21,4 +21,4 @@ if __name__ == "__main__":
     
     # make or update playlist
     # insert your names into this list
-    gigs.update_playlist(playlist_names = ['', '', ''])
+    gigs.update_playlists(playlist_names = ['', '', ''])
